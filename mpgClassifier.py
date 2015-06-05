@@ -45,7 +45,7 @@ def unitTest():
     assert(round(st, 3) == 65)
 def test(trainingset, testset):
     with open(trainingset) as datafile:
-        reader = csv.reader(datafile, delimiter='	')
+        reader = csv.reader(datafile, delimiter=',')
         athletes = {}
         sports = {}
         chars = []
@@ -53,13 +53,14 @@ def test(trainingset, testset):
             chars.append([])
         for row in reader:
             for i in range(len(row)-2):
-                chars[i].append(int(row[i+2]))
+                chars[i].append(float(row[i+2]))
             sports[row[0]] = row[1]
-            athletes[row[0]] = [int(row[2]), int(row[3])]
+            #doubled the weight on characteristic 2 (displacement) removing charachteristic 1 (cylinders)
+            athletes[row[0]] = [float(row[3]), float(row[3]), float(row[4]), float(row[5]), float(row[6])]
         standards = map(stscore, chars)
         athletes=standardize(athletes, standards)
         with open(testset) as testdata:
-            testreader = csv.reader(testdata, delimiter='	')
+            testreader = csv.reader(testdata, delimiter=',')
             testsports = {}
             testathletes = {}
             chars = []
@@ -67,16 +68,17 @@ def test(trainingset, testset):
                 chars.append([])
             for row in testreader:
                 for i in range(len(row)-2):
-                    chars[i].append(int(row[i+2]))
+                    chars[i].append(float(row[i+2]))
                 testsports[row[0]] = row[1]
-                testathletes[row[0]] = [int(row[2]), int(row[3])]
+                testathletes[row[0]] = [float(row[3]), float(row[3]), float(row[4]), float(row[5]), float(row[6])]
             standards = map(stscore, chars)
             testathletes=standardize(testathletes, standards)
             correct = 0
             for athlete in testsports:
                 prediction = classify(athlete, testathletes[athlete], athletes, sports)
-                print(athlete+" - "+prediction)
+                #print(athlete+" - "+prediction)
                 if(prediction==testsports[athlete]):
                     correct+=1
             print("Prediction acccuracy: "+str(correct*100.0/len(testsports))+"%")
-test("athletesTrainingSet.txt", "athletesTestSet.txt")
+test("mpgTrainingSet.csv", "mpgTestSet.csv")
+test("mpgTestSet.csv", "mpgTrainingSet.csv")
